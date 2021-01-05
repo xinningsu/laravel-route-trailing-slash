@@ -51,6 +51,7 @@ class Route extends \Illuminate\Routing\Route
             foreach ($validators as $key => $validator) {
                 if ($validator instanceof LaravelUriValidator) {
                     static::$validators[$key] = new UriValidator();
+                    break;
                 }
             }
 

@@ -29,7 +29,7 @@ class FunctionalTest extends TestCache
         ]);
 
         $app['events'] = $events;
-        $app->instance('config', $config = new Repository([]));
+        $app->instance('config', new Repository([]));
         $app->instance('request', $request);
         $app->register(RoutingServiceProvider::class);
         $app->register(PaginationServiceProvider::class);

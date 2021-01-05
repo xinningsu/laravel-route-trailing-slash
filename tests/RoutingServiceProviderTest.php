@@ -16,7 +16,7 @@ class RoutingServiceProviderTest extends TestCache
     {
         $app = new Application();
         $app['events'] = $this->createMock(EventFake::class);
-        $app->instance('config', $config = new Repository([]));
+        $app->instance('config', new Repository([]));
         $app->instance('request', new Request([], [], [], [], [], [
             'HTTP_HOST' => 'localhost',
             'REQUEST_URI' => '/test/?page=10',
