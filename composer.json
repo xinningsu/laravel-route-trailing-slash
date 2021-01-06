@@ -1,6 +1,6 @@
 {
     "name": "xinningsu/laravel-route-trailing-slash",
-    "description": "",
+    "description": "Let laravel route work as exactly as how we define it including the trailing slash.",
     "license": "MIT",
     "authors": [
         {
