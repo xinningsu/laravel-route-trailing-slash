@@ -1,1 +1,124 @@
-# laravel-route-trailing-slash
+# Laravel route trailing slash
+
+Let laravel route work as exactly as how we define it including the trailing slash.
+
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Build Status](https://api.travis-ci.org/xinningsu/laravel-route-trailing-slash.svg?branch=master)](https://travis-ci.org/xinningsu/laravel-route-trailing-slash)
+[![Coverage Status](https://coveralls.io/repos/github/xinningsu/laravel-route-trailing-slash/badge.svg?branch=master)](https://coveralls.io/github/xinningsu/laravel-route-trailing-slash)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/xinningsu/laravel-route-trailing-slash/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/xinningsu/laravel-route-trailing-slash)
+[![Code Intelligence Status](https://scrutinizer-ci.com/g/xinningsu/laravel-route-trailing-slash/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/g/xinningsu/laravel-route-trailing-slash)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=xinningsu_laravel-route-trailing-slash&metric=alert_status)](https://sonarcloud.io/dashboard?id=xinningsu_laravel-route-trailing-slash)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=xinningsu_laravel-route-trailing-slash&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=xinningsu_laravel-route-trailing-slash)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=xinningsu_laravel-route-trailing-slash&metric=security_rating)](https://sonarcloud.io/dashboard?id=xinningsu_laravel-route-trailing-slash)
+[![Maintainability](https://api.codeclimate.com/v1/badges/18669386ce65532b228f/maintainability)](https://codeclimate.com/github/xinningsu/laravel-route-trailing-slash/maintainability)
+
+# Background
+
+Currently when we define a route, Laravel will trim all the tailing slashes, output the route url without any tailing slash. When we access an url with trailing slashes, Laravel also will trim them. That makes the tailing slashes meaningless, sometimes it's quite annoying.
+
+
+## Define a route like this
+
+```php
+use App\Http\Controllers\PartnersController;
+
+Route::get('/partners/', [PartnersController::class, 'index'])->name('partners');
+```
+
+
+### Current behavior
+
+| URL       | Status  |
+| ------------- |-------------  |
+| [https://laravel.com/partners](https://laravel.com/partners) | 200 |
+| [https://laravel.com/partners/](https://laravel.com/partners/) | 200 |
+| [https://laravel.com/partners////](https://laravel.com/partners////) | 200 |
+
+
+### Expected behavior
+
+| URL       | Status  |
+| ------------- |-------------  |
+| [https://laravel.com/partners](https://laravel.com/partners) | 404 |
+| [https://laravel.com/partners/](https://laravel.com/partners/) | 200 |
+| [https://laravel.com/partners////](https://laravel.com/partners////) | 404 |
+
+
+## Output the route url
+
+```php
+echo route('partners');
+
+```
+
+### Current behavior
+
+`https://laravel.com/partners`
+
+### Expected behavior
+
+`https://laravel.com/partners/`
+
+
+## Pagination render
+
+Using database query builder or LengthAwarePaginator/Paginator
+
+### Current behavior
+
+`https://laravel.com/partners?page=2`
+
+### Expected behavior
+
+`https://laravel.com/partners/?page=2`
+
+
+# Usage
+
+There are two service providers, as the router service provider has to register at the very beginning before laravel http kernel class instantiation, so I can not make it work by Laravel Package Auto-Discovery function. Have to manually add it.
+
+
+### RoutingServiceProvider
+
+open `bootstrap/app.php`, right after app instantiation
+
+```php
+$app = new Illuminate\Foundation\Application(
+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
+);
+
+```
+
+add 
+```php
+$app->register(Sulao\LRTS\Routing\RoutingServiceProvider::class);
+
+```
+
+### PaginationServiceProvider
+
+Pagination Service Provider has to be added **after** laravel original Pagination Service Provider.
+
+add `Sulao\LRTS\Pagination\PaginationServiceProvider::class` to config/app.php under `providers` element, **after** `Illuminate\Pagination\PaginationServiceProvider::class`
+
+```php
+[
+    Illuminate\Pagination\PaginationServiceProvider::class,
+    
+    // ...
+    
+    /*
+    * Package Service Providers...
+    */
+    Sulao\LRTS\Pagination\PaginationServiceProvider::class,
+
+   // ...
+];
+        
+```
+
+That's it.
+
+# License
+
+[MIT](./LICENSE)
