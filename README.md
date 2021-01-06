@@ -14,7 +14,7 @@ Let laravel route work as exactly as how we define it including the trailing sla
 
 # Background
 
-Currently when we define a route, Laravel will trim all the tailing slashes, output the route url without any tailing slash. When we access an url with trailing slashes, Laravel also will trim them. That makes the tailing slashes meaningless, sometimes it's quite annoying.
+Currently when we define a route, Laravel will trim all the trailing slashes, output the route url without any trailing slash. When we access an url with trailing slashes, Laravel also will trim them. That makes the trailing slashes meaningless, sometimes it's quite annoying.
 
 
 ## Define a route like this
