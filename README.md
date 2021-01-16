@@ -16,7 +16,6 @@ Let laravel route work as exactly as how we define it including the trailing sla
 
 Currently when we define a route, Laravel will trim all the trailing slashes, output the route url without any trailing slash. When we access an url with trailing slashes, Laravel also will trim them. That makes the trailing slashes meaningless, sometimes it's quite annoying.
 
-
 ## Define a route like this
 
 ```php
@@ -24,25 +23,6 @@ use App\Http\Controllers\PartnersController;
 
 Route::get('/partners/', [PartnersController::class, 'index'])->name('partners');
 ```
-
-
-### Current behavior
-
-| URL       | Status  |
-| ------------- |-------------  |
-| [https://laravel.com/partners](https://laravel.com/partners) | 200 |
-| [https://laravel.com/partners/](https://laravel.com/partners/) | 200 |
-| [https://laravel.com/partners////](https://laravel.com/partners////) | 200 |
-
-
-### Expected behavior
-
-| URL       | Status  |
-| ------------- |-------------  |
-| [https://laravel.com/partners](https://laravel.com/partners) | 404 |
-| [https://laravel.com/partners/](https://laravel.com/partners/) | 200 |
-| [https://laravel.com/partners////](https://laravel.com/partners////) | 404 |
-
 
 ## Output the route url
 
@@ -53,11 +33,15 @@ echo route('partners');
 
 ### Current behavior
 
-`https://laravel.com/partners`
+```
+https://laravel.com/partners
+```
 
 ### Expected behavior
 
-`https://laravel.com/partners/`
+```
+https://laravel.com/partners/
+```
 
 
 ## Pagination render
@@ -66,17 +50,23 @@ Using database query builder or LengthAwarePaginator/Paginator
 
 ### Current behavior
 
-`https://laravel.com/partners?page=2`
+```
+https://laravel.com/partners?page=2
+```
 
 ### Expected behavior
 
-`https://laravel.com/partners/?page=2`
+```
+https://laravel.com/partners/?page=2
+```
 
+# Installation
 
-# Usage
+```
+composer require xinningsu/laravel-route-trailing-slash
+```
 
 There are two service providers, as the router service provider has to register at the very beginning before laravel http kernel class instantiation, so I can not make it work by Laravel Package Auto-Discovery function. Have to manually add it.
-
 
 ### RoutingServiceProvider
 
@@ -89,7 +79,7 @@ $app = new Illuminate\Foundation\Application(
 
 ```
 
-add 
+add
 ```php
 $app->register(Sulao\LRTS\Routing\RoutingServiceProvider::class);
 
@@ -117,7 +107,60 @@ add `Sulao\LRTS\Pagination\PaginationServiceProvider::class` to config/app.php u
         
 ```
 
-That's it.
+That's it, now we can generate url with/without trailing slash, same as the definition of route.
+
+# Mismatch action
+
+Currently Laravel will trim trailing slashes of access url, so no matter how many trailing slashes the url has, it makes no difference.
+
+### Current behavior
+
+| URL       | Status  |
+| ------------- |-------------  |
+| [https://laravel.com/partners](https://laravel.com/partners) | 200 |
+| [https://laravel.com/partners/](https://laravel.com/partners/) | 200 |
+| [https://laravel.com/partners////](https://laravel.com/partners////) | 200 |
+
+
+Now we can custom the mismatch action, such as abort 404, or 301/302 redirect, if route mismatch only because of trailing slash.
+
+
+### 404 action
+
+open `app/Providers/AppServiceProvider.php`, add below line to `register` method
+
+```php
+
+\Sulao\LRTS\Routing\Router::$mismatchAction = 404;
+```
+
+Now the behavior became
+
+| URL       | Status  |
+| ------------- |-------------  |
+| [https://laravel.com/partners](https://laravel.com/partners) | 404 |
+| [https://laravel.com/partners/](https://laravel.com/partners/) | 200 |
+| [https://laravel.com/partners////](https://laravel.com/partners////) | 404 |
+
+
+### 301/302 action
+
+open `app/Providers/AppServiceProvider.php`, add below line to `register` method
+
+```php
+
+\Sulao\LRTS\Routing\Router::$mismatchAction = 301;
+```
+
+Now the behavior became
+
+| URL       | Status  |
+| ------------- |-------------  |
+| [https://laravel.com/partners](https://laravel.com/partners) | 301 redirect to [https://laravel.com/partners/](https://laravel.com/partners/) |
+| [https://laravel.com/partners/](https://laravel.com/partners/) | 200 |
+| [https://laravel.com/partners////](https://laravel.com/partners////) | 301 redirect to [https://laravel.com/partners/](https://laravel.com/partners/) |
+
+
 
 # License
 

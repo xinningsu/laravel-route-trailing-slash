@@ -25,7 +25,7 @@ class Paginator extends \Illuminate\Pagination\Paginator
         parent::__construct($items, $perPage, $currentPage, $options);
 
         if (isset($options['path'])) {
-            $this->path = Helper::appendTrailingSlashes(
+            $this->path = Helper::appendSlashes(
                 $this->path,
                 $options['path']
             );

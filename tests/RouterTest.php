@@ -3,35 +3,18 @@
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
 use Illuminate\Container\Container;
-use Illuminate\Support\Testing\Fakes\EventFake;
-use Sulao\LRTS\Routing\Route;
+use Illuminate\Events\Dispatcher;
 use Sulao\LRTS\Routing\Router;
 
 class RouterTest extends TestCache
 {
-    public function testPrefix()
+    public function testAddRoute()
     {
-        $method = $this->protectMethod($this->getRouter(), 'prefix');
-        $this->assertEquals(
-            'test/',
-            $method('/test/')
-        );
-    }
+        $router = new Router(new Dispatcher(), new Container());
+        $route = $router->addRoute(['GET'], '/test/', function () {
+            return 'test';
+        });
 
-    public function testNewRoute()
-    {
-        $this->assertInstanceOf(Route::class, $this->getRouter()->newRoute(
-            ['GET', 'HEAD'],
-            'test/',
-            ['App\Http\Controllers\TestController', 'index']
-        ));
-    }
-
-    protected function getRouter()
-    {
-        $events = $this->createMock(EventFake::class);
-        $container = $this->createMock(Container::class);
-
-        return new Router($events, $container);
+        $this->assertEquals('/test/', $route->originalUri);
     }
 }

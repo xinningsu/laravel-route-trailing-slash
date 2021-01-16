@@ -2,6 +2,8 @@
 
 namespace Sulao\LRTS\Routing;
 
+use Sulao\LRTS\Helper;
+
 class UriValidator extends \Illuminate\Routing\Matching\UriValidator
 {
     /**
@@ -16,11 +18,25 @@ class UriValidator extends \Illuminate\Routing\Matching\UriValidator
         \Illuminate\Routing\Route $route,
         \Illuminate\Http\Request $request
     ) {
-        $path = $request->getPathInfo() ?: '/';
+        $match = parent::matches($route, $request);
 
-        return preg_match(
-            $route->getCompiled()->getRegex(),
-            rawurldecode($path)
-        );
+        if ($match && in_array(Router::$mismatchAction, [404, 301, 302])) {
+            $pathSlash = Helper::getTrailingSlashes($request->getPathInfo());
+            $routeSlash = Helper::getTrailingSlashes($route->originalUri);
+            if ($routeSlash !== $pathSlash) {
+                if (Router::$mismatchAction == 404) {
+                    abort(404);
+                }
+
+                $uri = $request->getUri();
+                $arr = explode('?', $uri);
+                $arr[0] = Helper::appendSlashes($arr[0], $route->originalUri);
+                $uri = implode('?', $arr);
+
+                abort(Router::$mismatchAction, '', ['Location' => $uri]);
+            }
+        }
+
+        return $match;
     }
 }

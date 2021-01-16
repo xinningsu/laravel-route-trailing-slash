@@ -2,24 +2,34 @@
 
 namespace Sulao\LRTS\Routing;
 
+use Illuminate\Routing\Exceptions\UrlGenerationException;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Str;
 use Sulao\LRTS\Helper;
 
 class UrlGenerator extends \Illuminate\Routing\UrlGenerator
 {
     /**
-     * Format the given URL segments into a single URL.
+     * Get the URL for a given route instance.
      *
-     * @param  string  $root
-     * @param  string  $path
-     * @param  \Illuminate\Routing\Route|null  $route
+     * @param  Route  $route
+     * @param  mixed  $parameters
+     * @param  bool  $absolute
      * @return string
+     *
+     * @throws UrlGenerationException
      */
-    public function format($root, $path, $route = null)
+    public function toRoute($route, $parameters, $absolute)
     {
-        return Helper::appendTrailingSlashes(
-            parent::format($root, $path, $route),
-            $path
-        );
+        $url = parent::toRoute($route, $parameters, $absolute);
+
+        if (Str::endsWith($route->originalUri, '/')) {
+            $arr = explode('?', $url);
+            $arr[0] = Helper::appendSlashes($arr[0], $route->originalUri);
+            $url = implode('?', $arr);
+        }
+
+        return $url;
     }
 
     /**
@@ -33,26 +43,9 @@ class UrlGenerator extends \Illuminate\Routing\UrlGenerator
      */
     public function to($path, $extra = [], $secure = null)
     {
-        return Helper::appendTrailingSlashes(
+        return Helper::appendSlashes(
             parent::to($path, $extra, $secure),
             $path
         );
-    }
-
-    /**
-     * Get the Route URL generator instance.
-     *
-     * @return RouteUrlGenerator
-     */
-    protected function routeUrl()
-    {
-        if (! $this->routeGenerator) {
-            $this->routeGenerator = new RouteUrlGenerator(
-                $this,
-                $this->request
-            );
-        }
-
-        return $this->routeGenerator;
     }
 }

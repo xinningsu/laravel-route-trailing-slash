@@ -2,6 +2,9 @@
 
 namespace Sulao\LRTS\Routing;
 
+use Illuminate\Routing\Matching\UriValidator as LaravelUriValidator;
+use Illuminate\Routing\Route;
+
 class RoutingServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     /**
@@ -29,5 +32,29 @@ class RoutingServiceProvider extends \Illuminate\Support\ServiceProvider
             );
         });
         $this->app->alias(UrlGenerator::class, 'url');
+
+        $this->replaceUriValidator();
+    }
+
+    /**
+     * Replace UriValidator
+     */
+    protected function replaceUriValidator()
+    {
+        static $replaced;
+
+        if ($replaced) {
+            return;
+        }
+
+        $validators = Route::getValidators();
+        foreach ($validators as $key => $validator) {
+            if ($validator instanceof LaravelUriValidator) {
+                Route::$validators[$key] = new UriValidator();
+                break;
+            }
+        }
+
+        $replaced = true;
     }
 }

@@ -27,7 +27,7 @@ class LengthAwarePaginator extends \Illuminate\Pagination\LengthAwarePaginator
         parent::__construct($items, $total, $perPage, $currentPage, $options);
 
         if (isset($options['path'])) {
-            $this->path = Helper::appendTrailingSlashes(
+            $this->path = Helper::appendSlashes(
                 $this->path,
                 $options['path']
             );

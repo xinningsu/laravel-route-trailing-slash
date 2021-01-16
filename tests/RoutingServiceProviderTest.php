@@ -3,19 +3,21 @@
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
 use Illuminate\Config\Repository;
+use Illuminate\Events\Dispatcher;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
-use Illuminate\Support\Testing\Fakes\EventFake;
+use Illuminate\Routing\Route;
 use Sulao\LRTS\Routing\Router;
 use Sulao\LRTS\Routing\RoutingServiceProvider;
 use Sulao\LRTS\Routing\UrlGenerator;
+use Sulao\LRTS\Routing\UriValidator;
 
 class RoutingServiceProviderTest extends TestCache
 {
     public function testRegister()
     {
         $app = new Application();
-        $app['events'] = $this->createMock(EventFake::class);
+        $app['events'] = new Dispatcher();
         $app->instance('config', new Repository([]));
         $app->instance('request', new Request([], [], [], [], [], [
             'HTTP_HOST' => 'localhost',
@@ -50,5 +52,14 @@ class RoutingServiceProviderTest extends TestCache
             UrlGenerator::class,
             $app->make(UrlGenerator::class)
         );
+
+        $validators = Route::getValidators();
+        $replaced = false;
+        foreach ($validators as $validator) {
+            if ($validator instanceof UriValidator) {
+                $replaced = true;
+            }
+        }
+        $this->assertTrue($replaced);
     }
 }

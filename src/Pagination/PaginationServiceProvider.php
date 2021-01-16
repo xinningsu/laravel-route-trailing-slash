@@ -2,6 +2,8 @@
 
 namespace Sulao\LRTS\Pagination;
 
+use Illuminate\Pagination\LengthAwarePaginator as LaravelLengthAwarePaginator;
+use Illuminate\Pagination\Paginator as LaravelPaginator;
 use Sulao\LRTS\Helper;
 
 class PaginationServiceProvider extends \Illuminate\Support\ServiceProvider
@@ -13,8 +15,8 @@ class PaginationServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function register()
     {
-        \Illuminate\Pagination\Paginator::currentPathResolver(function () {
-            return Helper::appendTrailingSlashes(
+        LaravelPaginator::currentPathResolver(function () {
+            return Helper::appendSlashes(
                 $this->app['request']->url(),
                 $this->app['request']->getPathInfo()
             );
@@ -22,12 +24,12 @@ class PaginationServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->app->alias(
             LengthAwarePaginator::class,
-            \Illuminate\Pagination\LengthAwarePaginator::class
+            LaravelLengthAwarePaginator::class
         );
 
         $this->app->alias(
             Paginator::class,
-            \Illuminate\Pagination\Paginator::class
+            LaravelPaginator::class
         );
     }
 }

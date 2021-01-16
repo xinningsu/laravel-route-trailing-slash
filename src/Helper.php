@@ -12,12 +12,33 @@ class Helper
      *
      * @return string
      */
-    public static function appendTrailingSlashes($path, $origin)
+    public static function appendSlashes($path, $origin)
     {
-        if ($path !== $origin && preg_match('~/+$~', $origin, $match)) {
-            return rtrim($path, '/') . $match[0];
+        if ($path !== $origin) {
+            $slash = self::getTrailingSlashes($origin);
+            return rtrim($path, '/') . $slash;
         }
 
         return $path;
+    }
+
+    /**
+     * Get trailing slashes
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function getTrailingSlashes($path)
+    {
+        $slash = '';
+        $offset = -1;
+        $len = strlen($path);
+        while ($len >= abs($offset) && substr($path, $offset, 1) === '/') {
+            $slash .= '/';
+            $offset -= 1;
+        }
+
+        return $slash;
     }
 }

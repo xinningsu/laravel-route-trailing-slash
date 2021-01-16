@@ -6,26 +6,59 @@ use Sulao\LRTS\Helper;
 
 class HelperTest extends TestCache
 {
-    public function testAppendTrailingSlashes()
+    public function testAppendSlashes()
     {
         $this->assertEquals(
             '/',
-            Helper::appendTrailingSlashes('/', '/')
+            Helper::appendSlashes('/', '/')
         );
 
         $this->assertEquals(
             '/test',
-            Helper::appendTrailingSlashes('/test', '/ttt')
+            Helper::appendSlashes('/test', '/ttt')
         );
 
         $this->assertEquals(
             'http://localhost/test/',
-            Helper::appendTrailingSlashes('http://localhost/test', '/test/')
+            Helper::appendSlashes('http://localhost/test', '/test/')
         );
 
         $this->assertEquals(
             '/test//',
-            Helper::appendTrailingSlashes('/test', '/test//')
+            Helper::appendSlashes('/test', '/test//')
+        );
+
+        $this->assertEquals(
+            '/test',
+            Helper::appendSlashes('/test/', '/test')
+        );
+
+        $this->assertEquals(
+            '/test',
+            Helper::appendSlashes('/test//', '/test')
+        );
+    }
+
+    public function testGetTrailingSlashes()
+    {
+        $this->assertEquals(
+            '/',
+            Helper::getTrailingSlashes('/')
+        );
+
+        $this->assertEquals(
+            '',
+            Helper::getTrailingSlashes('')
+        );
+
+        $this->assertEquals(
+            '//',
+            Helper::getTrailingSlashes('//')
+        );
+
+        $this->assertEquals(
+            '',
+            Helper::getTrailingSlashes('/test')
         );
     }
 }
